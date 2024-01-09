@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash, session, redirect, url_for
 from flask import request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
@@ -12,12 +12,23 @@ app.config['SECRET_KEY'] = "hard_to_guess_string"
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
+class NameForm(FlaskForm):
+    name = StringField('What is your name?', validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
-
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():    
-    return render_template('index.html')
+    
+    form = NameForm()
+    if form.validate_on_submit():
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash("Looks like you changed your name!")
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
+
+    return render_template('index.html', name=session.get('name'), form=form)
 
 @app.route('/user/<name>')
 def user(name):
