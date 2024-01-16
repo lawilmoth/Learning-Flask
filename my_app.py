@@ -16,6 +16,9 @@ app.config['SECRET_KEY'] = "hard_to_guess_string"
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///'+os.path.join(basedir,'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
+app.config['FLASK_MAIL_SUBJECT_PREFIX']= "[Me]"
+app.config['FLASK_MAIL_SENDER']= os.environ.get('MAIL_USERNAME')
+print(os.environ.get('MAIL_USERNAME'))
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
