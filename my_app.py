@@ -8,6 +8,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_migrate import Migrate
+from flask_mail import Mail, Message
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,14 +17,28 @@ app.config['SECRET_KEY'] = "hard_to_guess_string"
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///'+os.path.join(basedir,'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
-app.config['FLASK_MAIL_SUBJECT_PREFIX']= "[Me]"
-app.config['FLASK_MAIL_SENDER']= os.environ.get('MAIL_USERNAME')
-print(os.environ.get('MAIL_USERNAME'))
+app.config['FLASK_MAIL_SUBJECT_PREFIX']= "[My App]"
+app.config['MAIL_USERNAME']= os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_SENDER'] = 'Flask Admin'
+app.config['ADMIN'] = 'lwilmoth@eriesd.org' #For testing.
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = 'True'
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
+mail = Mail(app)
+
+def send_email(to, subject, template, **kwargs):
+    print(app.config['MAIL_SENDER'])
+    msg = Message(app.config['MAIL_SENDER'] + ' ' + subject,
+                  sender=app.config['MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template+'.txt', **kwargs)
+    msg.html = render_template(template+'.html', **kwargs)
+    mail.send(msg)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -64,6 +79,14 @@ def index():
             db.session.add(user)
             db.session.commit()
             session['known']= False
+            if app.config['ADMIN']:
+                print("Sending Email")
+                send_email(
+                    app.config['ADMIN'], 
+                    'New User', 
+                    'mail/new_user', 
+                    user=user)
+                print('Email sent!')
         else:
             session['known'] = True
         session['name'] = form.name.data
@@ -88,4 +111,5 @@ def intenal_server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == "__main__":
+    
     app.run(debug=True)
