@@ -11,27 +11,11 @@ from flask_migrate import Migrate
 from flask_mail import Mail, Message
 from threading import Thread
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = "hard_to_guess_string"
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'sqlite:///'+os.path.join(basedir,'data.sqlite')
-app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
-app.config['FLASK_MAIL_SUBJECT_PREFIX']= "[My App]"
-app.config['MAIL_USERNAME']= os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_SENDER'] = 'Flask Admin'
-app.config['ADMIN'] = 'lwilmoth@eriesd.org' #For testing.
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = 'True'
 
-bootstrap = Bootstrap(app)
-moment = Moment(app)
-db = SQLAlchemy(app)
+
 migrate = Migrate(app,db)
-mail = Mail(app)
+
 
 def send_async_email(app, msg):
     with app.app_context():
