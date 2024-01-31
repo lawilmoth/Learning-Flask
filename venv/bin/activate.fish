@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/vboxuser/Python Projects/Learning Flask/venv"
+set -gx VIRTUAL_ENV "/home/vboxuser/Learning-Flask_too/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
